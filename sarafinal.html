@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi Saraith</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/scrollreveal"></script>
+
+    <style>
+        :root { 
+            --bg-beige: #fefaf0; 
+            --soft-pink: #fce4ec;
+            --pastel-green: #d4edda; 
+            --text-brown: #4e342e; 
+            --accent-green: #81c784; 
+        }
+        
+        body { 
+            background-color: var(--bg-beige); 
+            color: var(--text-brown); 
+            font-family: 'Quicksand', sans-serif; 
+            margin: 0; padding: 0; overflow-x: hidden; 
+        }
+
+        /* --- REPRODUCTOR DE MÚSICA --- */
+        .music-player {
+            position: fixed; top: 20px; right: 20px; z-index: 2000;
+            background: white; padding: 10px; border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex;
+            align-items: center; gap: 8px; border: 2px solid var(--accent-green);
+        }
+        .music-player span { font-size: 0.8rem; font-weight: 700; color: var(--accent-green); padding-left: 5px; }
+        audio { height: 30px; width: 150px; }
+
+        .ambient-field { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .container { position: relative; z-index: 1; max-width: 500px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+
+        header h1 { font-family: 'Pacifico', cursive; font-size: 2.8rem; color: var(--accent-green); margin: 0; }
+        header p { font-size: 1.1rem; font-style: italic; margin-top: 10px; }
+
+        .main-illustration { 
+            width: 65%; margin: 30px auto; border-radius: 50%; 
+            border: 4px solid var(--pastel-green); background: white; padding: 10px;
+        }
+
+        .intro-text { font-size: 1.1rem; line-height: 1.7; margin: 30px 0; font-weight: 500; }
+
+        .btn-start {
+            background-color: var(--accent-green); color: white; border: none; padding: 15px 35px;
+            font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1rem;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        #timeline-section { display: none; margin-top: 40px; }
+
+        /* --- LINEA DE TIEMPO --- */
+        .timeline { position: relative; margin: 40px auto; padding: 20px 0; }
+        .timeline::after { content: ''; position: absolute; width: 2px; background-color: var(--accent-green); top: 0; bottom: 0; left: 50%; }
+
+        .timeline-item { padding: 10px 20px; position: relative; width: 50%; box-sizing: border-box; }
+        .timeline-item::after { 
+            content: '❤'; position: absolute; font-size: 12px; color: var(--accent-green);
+            right: -10px; top: 25px; z-index: 1; background: var(--bg-beige); padding: 2px;
+        }
+        .left { left: 0; text-align: right; }
+        .right { left: 50%; text-align: left; }
+        .right::after { left: -10px; }
+
+        .polaroid { 
+            background: white; padding: 8px 8px 20px 8px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-radius: 2px; cursor: pointer;
+        }
+        .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; border-radius: 2px; }
+        .caption { font-size: 0.7rem; margin-top: 8px; font-weight: 700; color: #795548; letter-spacing: 0.5px; }
+
+        /* --- CORAZÓN FINAL --- */
+        .final-section { margin-top: 50px; padding-bottom: 80px; }
+        .heart-btn {
+            width: 70px; height: 70px; background: #ff8a80; display: inline-block; cursor: pointer;
+            clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
+            border: none; transition: 0.4s;
+        }
+        .heart-btn:hover { transform: scale(1.2); filter: brightness(1.1); }
+
+        /* --- MODALES --- */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(46, 33, 29, 0.96); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px; flex-direction: column;
+        }
+        .gallery-box {
+            background: white; padding: 12px 12px 25px 12px; border-radius: 4px;
+            max-width: 350px; width: 100%; text-align: center;
+        }
+        .gallery-box img { width: 100%; border-radius: 2px; }
+        .gallery-msg { margin-top: 15px; font-size: 1.1rem; font-weight: 600; line-height: 1.5; color: var(--text-brown); }
+        
+        .close-btn { 
+            margin-top: 20px; background: none; border: 1px solid white; color: white; 
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Quicksand';
+        }
+
+        .final-modal {
+            background: white; padding: 30px; border-radius: 30px; border: 3px solid var(--accent-green);
+            max-width: 380px; text-align: center; position: relative;
+        }
+
+        .leaf { position: absolute; animation: fall linear infinite; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .timeline::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 45px; text-align: left; }
+            .timeline-item::after { left: 14px; }
+            .right { left: 0; }
+            .music-player { top: auto; bottom: 20px; right: 20px; } /* Mueve la música abajo en móviles */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="music-player">
+        <span>♫</span>
+        <audio id="miMusica" controls loop>
+            <source src="https://files.catbox.moe/czbwsp.mpeg" type="audio/mpeg">
+            Tu navegador no soporta el audio.
+        </audio>
+    </div>
+
+    <div class="ambient-field" id="ambient"></div>
+
+    <div class="container">
+        <header class="reveal">
+            <h1>Para Saraith</h1>
+            <p>Con todo mi cariño en este 8M</p>
+            <img src="https://i.postimg.cc/zGs8xFqW/Whats-App-Image-2026-03-06-at-23-43-50.jpg" class="main-illustration">
+            <div class="intro-text">
+                Hoy no es un día cualquiera. Es el día en que el mundo celebra a las mujeres, pero para mí, es la oportunidad perfecta para recordarte lo mucho que te admiro y lo afortunado que soy de tenerte cerca.
+            </div>
+            <button class="btn-start" onclick="showTimeline()">Empezar nuestro recorrido</button>
+        </header>
+
+        <div id="timeline-section">
+            <div class="timeline" id="timeline-container"></div>
+            <div class="final-section reveal-item">
+                <p style="margin-bottom: 15px; font-weight: 600;">Un último mensaje para ti...</p>
+                <button class="heart-btn" onclick="showFinal()"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="gallery-overlay">
+        <div class="gallery-box">
+            <img id="g-img" src="">
+            <div class="gallery-msg" id="g-txt"></div>
+        </div>
+        <button class="close-btn" onclick="closeGallery()">Continuar leyendo</button>
+    </div>
+
+    <div class="overlay" id="final-overlay">
+        <div class="final-modal">
+            <h3 style="font-family: 'Pacifico'; color: var(--accent-green); font-size: 1.8rem; margin: 0 0 15px 0;">Te quiero, Saraith</h3>
+            <p style="line-height: 1.6; font-weight: 600;">
+                Gracias por ser tú, por tu fuerza y por esa ternura que me hace tan bien. Nunca olvides que vales muchísimo, hoy y cada día de tu vida. <br><br>
+                Eres mi persona favorita y mi mayor orgullo. ❤️
+            </p>
+            <button class="btn-start" style="margin-top: 20px;" onclick="location.reload()">Volver a empezar</button>
+        </div>
+    </div>
+
+    <script>
+        const s_data = [
+            { src: "https://i.postimg.cc/XYR4sknC/Whats-App-Image-2026-03-06-at-23-42-34.jpg", title: "Tu esencia", msg: "Desde que llegaste, llenaste mis días de un color que no sabía que existía. Eres magia pura." },
+            { src: "https://i.postimg.cc/qvP41xp6/Whats-App-Image-2026-03-06-at-23-42-54.jpg", title: "Tu fortaleza", msg: "Admiro la valentía con la que enfrentas cada día. Eres la mujer más fuerte que conozco." },
+            { src: "https://i.postimg.cc/43pZqH39/Whats-App-Image-2026-03-06-at-23-54-39.jpg", title: "Tu sonrisa", msg: "Si pudiera regalarte algo, sería que te vieras a través de mis ojos para que supieras lo hermosa que eres cuando sonríes." },
+            { src: "https://i.postimg.cc/Bnr4mBJ2/Whats-App-Image-2026-03-06-at-23-43-51.jpg", title: "Nuestro camino", msg: "Cada momento a tu lado es un tesoro que guardo con todo mi corazón. Gracias por compartir tu vida conmigo." },
+            { src: "https://i.postimg.cc/52hbsSfX/Whats-App-Image-2026-03-06-at-23-43-49.jpg", title: "Tu valor", msg: "Nunca dejes que nadie apague tu luz. El mundo es mucho más bonito porque tú estás en él." },
+            { src: "https://i.postimg.cc/R0w9yJ0t/Whats-App-Image-2026-03-06-at-23-46-26.jpg", title: "Mi apoyo", msg: "Pase lo que pase, siempre estaré aquí para cuidarte, escucharte y recordarte lo increíble que eres." },
+            { src: "https://i.postimg.cc/VNX1p0Nn/Whats-App-Image-2026-03-06-at-23-56-00.jpg", title: "Feliz 8M", msg: "Hoy celebro tu vida, tus sueños y la mujer maravillosa en la que te has convertido. Te admiro infinitamente." }
+        ];
+
+        const container = document.getElementById('timeline-container');
+        s_data.forEach((d, i) => {
+            const side = i % 2 === 0 ? 'left' : 'right';
+            container.innerHTML += `
+                <div class="timeline-item ${side} reveal-item">
+                    <div class="polaroid" onclick="openG(${i})">
+                        <img src="${d.src}">
+                        <div class="caption">${d.title}</div>
+                    </div>
+                </div>`;
+        });
+
+        function showTimeline() {
+            // Intentar reproducir música al hacer clic (necesario por reglas del navegador)
+            const audio = document.getElementById('miMusica');
+            audio.play().catch(e => console.log("El autodespacho fue bloqueado, Saraith deberá darle al play manualmente."));
+
+            document.getElementById('timeline-section').style.display = 'block';
+            document.querySelector('.btn-start').style.display = 'none';
+            ScrollReveal().reveal('.reveal-item', { distance: '20px', interval: 100, origin: 'bottom' });
+            window.scrollBy({ top: 400, behavior: 'smooth' });
+        }
+
+        function openG(i) {
+            document.getElementById('g-img').src = s_data[i].src;
+            document.getElementById('g-txt').innerText = s_data[i].msg;
+            document.getElementById('gallery-overlay').style.display = 'flex';
+        }
+        function closeGallery() { document.getElementById('gallery-overlay').style.display = 'none'; }
+        function showFinal() { document.getElementById('final-overlay').style.display = 'flex'; }
+
+        const ambient = document.getElementById('ambient');
+        for(let i=0; i<12; i++) {
+            const l = document.createElement('div');
+            l.className = 'leaf';
+            l.innerHTML = ['🌸', '✨', '💖'][Math.floor(Math.random()*3)];
+            l.style.left = Math.random()*100 + 'vw';
+            l.style.animationDuration = (Math.random()*3 + 4) + 's';
+            l.style.opacity = Math.random();
+            ambient.appendChild(l);
+        }
+
+        ScrollReveal().reveal('.reveal', { duration: 1200, origin: 'top', distance: '50px' });
+    </script>
+</body>
+</html>
